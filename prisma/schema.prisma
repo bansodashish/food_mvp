@@ -1,0 +1,225 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  phone         String?
+  address       String?
+  city          String?
+  zipCode       String?
+  userType      UserType  @default(CONSUMER)
+  
+  accounts      Account[]
+  sessions      Session[]
+  
+  // Food items relationships
+  listedItems   FoodItem[] @relation("ItemSeller")
+  purchasedItems Transaction[] @relation("ItemBuyer")
+  donations     Donation[] @relation("DonationDonor")
+  receivedDonations Donation[] @relation("DonationRecipient")
+  
+  // Sustainability metrics
+  sustainabilityMetrics SustainabilityMetric[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model FoodItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    FoodCategory
+  quantity    Int
+  unit        String   // kg, pieces, liters, etc.
+  originalPrice Decimal?
+  currentPrice  Decimal?
+  expiryDate  DateTime
+  location    String
+  isAvailable Boolean  @default(true)
+  images      String[] // Array of image URLs
+  
+  sellerId    String
+  seller      User     @relation("ItemSeller", fields: [sellerId], references: [id])
+  
+  transactions Transaction[]
+  donations   Donation[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category])
+  @@index([expiryDate])
+  @@index([isAvailable])
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  itemId        String
+  buyerId       String
+  sellerId      String
+  quantity      Int
+  totalAmount   Decimal
+  platformFee   Decimal
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentIntentId String?
+  
+  item          FoodItem @relation(fields: [itemId], references: [id])
+  buyer         User     @relation("ItemBuyer", fields: [buyerId], references: [id])
+  
+  logistics     LogisticsInfo?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Donation {
+  id            String   @id @default(cuid())
+  itemId        String
+  donorId       String
+  recipientId   String?
+  quantity      Int
+  status        DonationStatus @default(PENDING)
+  pickupDate    DateTime?
+  deliveryDate  DateTime?
+  
+  item          FoodItem @relation(fields: [itemId], references: [id])
+  donor         User     @relation("DonationDonor", fields: [donorId], references: [id])
+  recipient     User?    @relation("DonationRecipient", fields: [recipientId], references: [id])
+  
+  logistics     LogisticsInfo?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model LogisticsInfo {
+  id            String   @id @default(cuid())
+  transactionId String?  @unique
+  donationId    String?  @unique
+  
+  pickupAddress String
+  deliveryAddress String
+  carrierName   String?
+  trackingNumber String?
+  status        LogisticsStatus @default(PENDING)
+  estimatedDelivery DateTime?
+  actualDelivery DateTime?
+  
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  donation      Donation?    @relation(fields: [donationId], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SustainabilityMetric {
+  id            String   @id @default(cuid())
+  userId        String
+  month         Int
+  year          Int
+  
+  itemsSaved    Int      @default(0)
+  co2Reduced    Decimal  @default(0) // kg of CO2
+  wastePrevented Decimal @default(0) // kg of food waste
+  moneySaved    Decimal  @default(0)
+  moneyEarned   Decimal  @default(0)
+  
+  user          User     @relation(fields: [userId], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([userId, month, year])
+}
+
+enum UserType {
+  CONSUMER
+  BUSINESS
+  CHARITY
+  ADMIN
+}
+
+enum FoodCategory {
+  FRUITS
+  VEGETABLES
+  DAIRY
+  MEAT
+  BAKERY
+  CANNED_GOODS
+  FROZEN
+  BEVERAGES
+  SNACKS
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum DonationStatus {
+  PENDING
+  ACCEPTED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum LogisticsStatus {
+  PENDING
+  PICKUP_SCHEDULED
+  IN_TRANSIT
+  DELIVERED
+  FAILED
+}
