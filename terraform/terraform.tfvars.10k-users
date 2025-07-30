@@ -1,0 +1,36 @@
+# Configuration for 10,000 users - using existing VPC
+aws_region = "eu-west-1"
+
+# Use existing infrastructure
+use_existing_vpc = true
+existing_vpc_id = "vpc-092ac0f7eaf3d4221"
+existing_subnet_ids = [
+  "subnet-087046bd3d8c5919c",  # test-subnet-public1-eu-west-1a
+  "subnet-05acb25890bb95e62"   # test-subnet-public2-eu-west-1b
+]
+
+# Database configuration - optimized for scale
+db_name     = "food_surplus_db"
+db_username = "postgres"
+enable_optimized_db = true
+db_instance_class = "db.t3.medium"
+db_allocated_storage = 100
+db_max_allocated_storage = 500
+max_db_connections = 200
+
+# Monitoring - comprehensive
+enable_monitoring = true
+backup_retention_period = 14
+
+# Security - production ready
+skip_final_snapshot = false
+deletion_protection = true
+
+# GitHub repository URL (replace with your actual repository)
+github_repo_url = "https://bitbucket.tools.3stripes.net/scm/~ashish.bansod_adidas.com/aws_food_surplus.git"
+
+# NextAuth secret (generate a secure random string with: openssl rand -base64 32)
+nextauth_secret = "your-secure-random-string-here"
+
+# Custom domain (recommended for production)
+custom_domain = "foodsurplus.yourdomain.com"

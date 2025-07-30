@@ -1,312 +1,369 @@
-# 🌱 Food Surplus Platform
+# 🍃 Food Surplus Platform - AWS Deployment
 
-A comprehensive web application designed to reduce food waste through marketplace functionality, donations, and AI-driven sustainability tracking.
+A complete Next.js application for reducing food waste, deployed on AWS with minimal cost infrastructure.
 
-## ✨ Features
+## 📁 Project Structure
 
-### 🛒 **Marketplace**
-- Browse surplus food items at discounted prices
-- Advanced filtering by category, price, location, expiry date
-- Real-time availability tracking
-- Multi-vendor support
+```
+aws_testing_surplus/
+├── food_surplus/           # Next.js application
+│   ├── src/                # Application source code
+│   ├── prisma/             # Database schema
+│   ├── package.json        # Dependencies
+│   └── amplify.yml         # Amplify build configuration
+├── terraform/              # Infrastructure as Code
+│   ├── main.tf             # Main Terraform configuration
+│   ├── variables.tf        # Input variables
+│   ├── outputs.tf          # Output values
+│   ├── amplify.yml         # Amplify build spec
+│   └── terraform.tfvars.example
+├── deploy.sh               # Automated deployment script
+├── secure-deploy.sh        # Secure deployment with env vars
+├── setup-secrets.sh        # AWS Secrets Manager setup
+├── .env.terraform.example  # Environment variables template
+├── DEPLOYMENT_GUIDE.md     # Detailed deployment instructions
+└── README.md              # This file
+```
 
-### 💝 **Donation System**
-- Food donation requests and fulfillment
-- Charity organization integration
-- Pickup and delivery coordination
-- Impact tracking for donors
-
-### 📊 **Sustainability Analytics**
-- AI-powered impact calculations
-- CO₂ reduction tracking
-- Waste prevention metrics
-- Personal and community dashboards
-- Monthly sustainability reports
-
-### 💳 **Payment Integration**
-- Secure Stripe payment processing
-- Multi-party payment splits
-- Escrow functionality for secure transactions
-- Automated refund handling
-
-### 🚚 **Logistics Management**
-- Multi-carrier shipping integration (Shippo API)
-- Real-time tracking updates
-- Route optimization for deliveries
-- Cold chain logistics for perishables
-
-## 🏗️ Architecture
-
-### **Frontend**
-- **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: Custom components with Headless UI
-- **Authentication**: NextAuth.js
-- **State Management**: React hooks + Server State
-
-### **Backend**
-- **API**: Next.js API Routes (Serverless)
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js with multiple providers
-- **File Storage**: AWS S3 (configurable)
-- **Email**: Configurable email service
-
-### **External Services**
-- **Payment**: Stripe
-- **AI**: OpenAI API for sustainability insights
-- **Shipping**: Shippo API
-- **Maps**: Google Maps API
-- **Analytics**: Built-in dashboard
-
-## 🚀 Quick Start
+## 🚀 Quick Start Deployment
 
 ### Prerequisites
-- Node.js 18+ 
-- PostgreSQL database
-- npm or yarn
+- AWS Account with appropriate permissions
+- AWS CLI installed and configured
+- Terraform >= 1.0 installed
+- GitHub repository for your code
+- Node.js and npm installed
 
-### Installation
+### 1-Minute Deployment (Secure Method)
 
-1. **Clone and Install**
+1. **Clone and setup**:
    ```bash
-   git clone <repository>
-   cd food-surplus-platform
-   npm install
-   ```
-
-2. **Environment Setup**
-   Copy `.env.local` and configure your environment variables:
-   ```bash
-   cp .env.local .env.local
-   ```
+   # Navigate to your project directory
+   cd aws_testing_surplus
    
-   Required variables:
-   ```env
-   DATABASE_URL="postgresql://username:password@localhost:5432/food_surplus_db"
-   NEXTAUTH_SECRET="your-nextauth-secret"
-   NEXTAUTH_URL="http://localhost:3000"
-   STRIPE_PUBLISHABLE_KEY="pk_test_..."
-   STRIPE_SECRET_KEY="sk_test_..."
-   OPENAI_API_KEY="sk-..."
+   # Make deployment scripts executable
+   chmod +x deploy.sh
+   chmod +x secure-deploy.sh
    ```
 
-3. **Database Setup**
+2. **Configure Terraform**:
    ```bash
-   npm run db:generate
-   npm run db:push
+   cd terraform
+   cp terraform.tfvars.example terraform.tfvars
+   # Edit terraform.tfvars with your values (secrets will be handled separately)
    ```
 
-4. **Start Development Server**
+3. **Secure Deployment** (Recommended):
    ```bash
-   npm run dev
+   # This keeps secrets out of git while making them available locally
+   ./secure-deploy.sh
    ```
 
-   Visit [http://localhost:3000](http://localhost:3000)
+   **OR Manual Approach**:
+   ```bash
+   # Set environment variable for NextAuth secret
+   export TF_VAR_nextauth_secret="$(openssl rand -base64 32)"
+   
+   # Deploy
+   cd terraform
+   terraform apply -var-file="terraform.tfvars.1k-users"
+   ```
 
-## 🗄️ Database Schema
+That's it! Your application will be deployed to AWS with secure credential management.
 
-### Core Tables
-- **Users**: Authentication and profile management
-- **FoodItems**: Product listings with categories and pricing
-- **Transactions**: Purchase records and payment status
-- **Donations**: Food donation tracking and fulfillment
-- **LogisticsInfo**: Shipping and delivery management
-- **SustainabilityMetrics**: Impact tracking and reporting
+## 🏗️ Infrastructure Components
 
-### User Types
-- **Consumer**: Regular users buying discounted food
-- **Business**: Food retailers selling surplus inventory
-- **Charity**: Organizations receiving donations
-- **Admin**: Platform administrators
+### AWS Services Used
+- **AWS Amplify**: Frontend hosting and CI/CD
+- **Amazon RDS**: PostgreSQL database (db.t3.micro)
+- **Amazon VPC**: Network isolation
+- **AWS Security Groups**: Network security
 
-## 📱 Pages & Features
+### Cost Optimization
+- Using AWS Free Tier eligible services where possible
+- Minimal RDS instance (db.t3.micro)
+- Public subnets to avoid NAT Gateway costs
+- Pay-per-use Amplify hosting
 
-### 🏠 **Landing Page**
-- Hero section with impact statistics
-- Featured food items showcase
-- Sustainability metrics display
-- Newsletter signup
+### Estimated Monthly Costs
+- **RDS**: $13-15/month (after free tier)
+- **Amplify**: $1-5/month
+- **Data Transfer**: $1-3/month
+- **Total**: ~$15-25/month
 
-### 🔍 **Browse Page**
-- Advanced search and filtering
-- Category-based browsing
-- Sort by price, expiry, distance
-- Interactive item cards
+## 🔧 Configuration
 
-### 🔐 **Authentication**
-- Email/password login
-- Google OAuth integration
-- User registration with profile setup
-- Password reset functionality
+### Required Environment Variables
+The following are automatically configured during deployment:
 
-### 🏪 **Seller Dashboard**
-- Item listing management
-- Sales analytics
-- Inventory tracking
-- Sustainability impact reports
-
-### 💰 **Payment Flow**
-- Secure checkout process
-- Multiple payment methods
-- Transaction history
-- Automated receipts
-
-## 🤖 AI & Sustainability
-
-### Impact Calculation
-- Automated CO₂ reduction estimates
-- Food waste prevention tracking
-- Water and land resource savings
-- Economic impact assessment
-
-### Smart Recommendations
-- AI-driven product suggestions
-- Demand prediction for sellers
-- Optimal pricing recommendations
-- Personalized sustainability tips
-
-## 🚚 Logistics Integration
-
-### Shipping Partners
-- Multi-carrier rate comparison
-- Real-time tracking updates
-- Delivery confirmation
-- Returns management
-
-### Features
-- Pickup scheduling
-- Route optimization
-- Cold chain compliance
-- Delivery notifications
-
-## 🎨 Design System
-
-### Colors
-- **Primary**: Green theme for sustainability
-- **Secondary**: Yellow accents for energy
-- **Neutral**: Gray scale for content
-
-### Components
-- Responsive design (mobile-first)
-- Accessible UI components
-- Consistent spacing and typography
-- Interactive states and animations
-
-## 🔒 Security
-
-### Authentication
-- Secure session management
-- Multi-factor authentication ready
-- OAuth integration
-- Password security policies
-
-### Data Protection
-- Input validation and sanitization
-- SQL injection prevention
-- XSS protection
-- CORS configuration
-
-## 📈 Performance
-
-### Optimizations
-- Next.js automatic code splitting
-- Image optimization
-- API route caching
-- Database query optimization
-
-### Monitoring
-- Built-in analytics dashboard
-- Error tracking and logging
-- Performance metrics
-- User behavior insights
-
-## 🌐 Deployment
-
-### Recommended: Vercel
-```bash
-npm run build
-vercel deploy
+```env
+DATABASE_URL=postgresql://username:password@host:5432/database
+NEXTAUTH_URL=https://your-app.amplifyapp.com
+NEXTAUTH_SECRET=automatically-set-via-environment-variable
+NEXT_PUBLIC_APP_URL=https://your-app.amplifyapp.com
 ```
 
-### Environment Variables
-Configure all required environment variables in your deployment platform.
+### Secure Credential Management
 
-### Database Migration
-Run database migrations in production:
+**🔒 Security Best Practice**: Credentials are managed securely and never committed to git.
+
+#### Method 1: Environment Variables (Recommended)
 ```bash
-npm run db:migrate
+# Generate a secure NextAuth secret
+export TF_VAR_nextauth_secret="$(openssl rand -base64 32)"
+
+# Deploy with terraform
+cd terraform
+terraform apply -var-file="terraform.tfvars.1k-users"
 ```
 
-## 📊 Monitoring & Analytics
+#### Method 2: Use Template File
+```bash
+# Copy environment template
+cp .env.terraform.example .env.terraform.local
 
-### Built-in Dashboard
-- Real-time platform statistics
-- User engagement metrics
-- Sustainability impact tracking
-- Revenue and transaction analysis
+# Edit the file with your secrets (this file is gitignored)
+# Then source it before deployment:
+source .env.terraform.local
+```
 
-### Key Metrics
-- Food items saved from waste
-- CO₂ emissions reduced
-- Money saved by users
-- Community impact score
+#### Method 3: AWS Secrets Manager (Advanced)
+```bash
+# Create secret in AWS Secrets Manager first
+./setup-secrets.sh
+
+# Then modify terraform to use Secrets Manager data source
+```
+
+### Optional OAuth Configuration
+To enable Google OAuth, add to your environment or Amplify environment variables:
+```env
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+**How to get Google OAuth credentials**: See [Google OAuth Setup Guide](#google-oauth-setup) below.
+
+## 📋 Features
+
+- **User Authentication**: NextAuth.js with Google OAuth and credentials
+- **Database**: PostgreSQL with Prisma ORM
+- **Responsive Design**: Tailwind CSS
+- **API Routes**: Next.js API endpoints
+- **Type Safety**: Full TypeScript support
+- **Database Migrations**: Automatic with Prisma
+
+## 🛠️ Development Workflow
+
+### Local Development
+```bash
+cd food_surplus
+npm install
+npm run dev
+```
+
+### Database Management
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Push schema changes
+npx prisma db push
+
+# Open Prisma Studio
+npx prisma studio
+```
+
+### Deployment Process
+1. Push code to GitHub
+2. Amplify automatically builds and deploys
+3. Database migrations run during build
+4. Application is live at your Amplify URL
+
+## 📊 Monitoring and Maintenance
+
+### Logs and Monitoring
+- **Amplify Build Logs**: AWS Amplify Console
+- **Application Logs**: CloudWatch (via Amplify)
+- **Database Metrics**: RDS Console
+
+### Backup and Recovery
+- **Database**: Automated daily backups (7-day retention)
+- **Code**: Version controlled in GitHub
+- **Infrastructure**: Terraform state management
+
+## 🔒 Security Features
+
+- **Database Encryption**: At rest and in transit
+- **HTTPS**: Enforced by Amplify
+- **Environment Variables**: Securely stored and managed
+- **VPC**: Network isolation for database
+- **IAM**: Least privilege access
+- **Credential Management**: Secrets kept out of version control
+- **Environment Variable Isolation**: TF_VAR_* pattern for secure secret passing
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **Build Failures**:
+   - Check Amplify build logs
+   - Verify environment variables are set
+   - Ensure database connectivity
+
+2. **Database Connection**:
+   - Check security group rules
+   - Verify DATABASE_URL format
+   - Ensure RDS instance is running
+
+3. **Authentication Issues**:
+   - Verify NEXTAUTH_SECRET is set via environment variable
+   - Check OAuth provider configuration
+   - Ensure NEXTAUTH_URL matches your domain
+
+4. **Missing Environment Variables**:
+   ```bash
+   # Check if NextAuth secret is set
+   echo $TF_VAR_nextauth_secret
+   
+   # If empty, set it:
+   export TF_VAR_nextauth_secret="$(openssl rand -base64 32)"
+   ```
+
+5. **Terraform Variable Errors**:
+   ```bash
+   # If you get "No declaration found for var.nextauth_secret"
+   # Make sure you're using environment variables:
+   export TF_VAR_nextauth_secret="your-secret"
+   
+   # Or use -var flag:
+   terraform apply -var="nextauth_secret=your-secret"
+   ```
+
+### Debug Commands
+```bash
+# Check Terraform state
+terraform show
+
+# View Terraform outputs (sensitive values hidden)
+terraform output
+
+# Validate Terraform configuration
+terraform validate
+
+# Plan infrastructure changes
+terraform plan
+
+# Check environment variables
+env | grep TF_VAR
+```
+
+## 🔄 CI/CD Pipeline
+
+The deployment uses AWS Amplify's built-in CI/CD:
+
+1. **Code Push**: Push to GitHub main branch
+2. **Build Trigger**: Amplify automatically starts build
+3. **Build Process**:
+   - Install dependencies (`npm ci`)
+   - Generate Prisma client (`npx prisma generate`)
+   - Run database migrations (`npx prisma db push`)
+   - Build Next.js application (`npm run build`)
+4. **Deploy**: Automatic deployment to Amplify hosting
+
+## 📈 Scaling Considerations
+
+### When to Scale Up
+- **Database**: Monitor CPU and connection metrics
+- **Hosting**: Amplify scales automatically
+- **Storage**: RDS auto-scaling configured (20GB → 100GB)
+
+### Upgrade Paths
+1. **Database**: Upgrade to larger RDS instance
+2. **Network**: Move to private subnets with NAT Gateway
+3. **CDN**: Add CloudFront distribution
+4. **Monitoring**: Add detailed CloudWatch monitoring
+
+## 🧹 Cleanup
+
+To avoid ongoing costs, destroy the infrastructure when not needed:
+
+```bash
+./deploy.sh destroy
+```
+
+This will remove all AWS resources created by Terraform.
+
+## 🔐 Google OAuth Setup
+
+### Step 1: Create Google Cloud Project
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project: "Food Surplus Platform"
+3. Enable Google+ API and Google People API
+
+### Step 2: Configure OAuth Consent Screen
+1. Go to **APIs & Services** → **OAuth consent screen**
+2. Choose **External** user type
+3. Fill in app information:
+   - **App name**: Food Surplus Platform
+   - **User support email**: Your email
+   - **Developer contact email**: Your email
+
+### Step 3: Create OAuth Credentials
+1. Go to **APIs & Services** → **Credentials**
+2. Click **+ Create Credentials** → **OAuth client ID**
+3. Choose **Web application**
+4. Add authorized redirect URIs:
+   - Development: `http://localhost:3000/api/auth/callback/google`
+   - Production: `https://yourdomain.amplifyapp.com/api/auth/callback/google`
+
+### Step 4: Secure Credential Storage
+**Never commit OAuth credentials to git!** Use environment variables:
+
+```bash
+# Add to your .env.terraform.local file
+export TF_VAR_google_client_id="your-client-id.apps.googleusercontent.com"
+export TF_VAR_google_client_secret="GOCSPX-your-client-secret"
+```
+
+Or set directly in Amplify Console under Environment Variables.
+
+## 🛡️ Security Best Practices
+
+### Credential Management
+- ✅ Use environment variables for all secrets
+- ✅ Never commit `.env` files or credentials to git
+- ✅ Use different credentials for dev/staging/production
+- ✅ Rotate secrets regularly
+- ✅ Use AWS Secrets Manager for production environments
+
+### File Security
+- ✅ `.gitignore` configured to exclude sensitive files
+- ✅ Use `TF_VAR_*` pattern for Terraform secrets
+- ✅ Template files (`.example`) for team collaboration
+- ✅ Local-only credential files (`.local` suffix)
+
+## 📚 Additional Resources
+
+- [AWS Amplify Documentation](https://docs.amplify.aws/)
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/)
+- [Next.js Deployment Guide](https://nextjs.org/docs/deployment)
+- [Prisma Documentation](https://www.prisma.io/docs/)
 
 ## 🤝 Contributing
 
-### Development Guidelines
-1. Follow TypeScript best practices
-2. Use conventional commit messages
-3. Implement proper error handling
-4. Write comprehensive tests
-5. Ensure accessibility compliance
-
-### Code Style
-- ESLint configuration included
-- Prettier for code formatting
-- Consistent component patterns
-- Proper documentation
-
-## 📚 API Documentation
-
-### Authentication Endpoints
-- `POST /api/auth/signin` - User login
-- `POST /api/auth/signup` - User registration
-- `GET /api/auth/session` - Get current session
-
-### Food Items
-- `GET /api/items` - List food items (with filters)
-- `POST /api/items` - Create new food item
-- `GET /api/items/[id]` - Get item details
-- `PUT /api/items/[id]` - Update item
-- `DELETE /api/items/[id]` - Delete item
-
-### Transactions
-- `POST /api/transactions` - Create transaction
-- `GET /api/transactions` - List user transactions
-- `GET /api/transactions/[id]` - Get transaction details
-
-### Sustainability
-- `GET /api/sustainability/stats` - Get platform stats
-- `GET /api/sustainability/user` - Get user impact metrics
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test locally
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License. See LICENSE file for details.
-
-## 🆘 Support
-
-### Documentation
-- Full API documentation
-- Component library documentation
-- Database schema reference
-- Deployment guides
-
-### Community
-- GitHub Issues for bug reports
-- GitHub Discussions for questions
-- Discord community (coming soon)
+This project is licensed under the MIT License.
 
 ---
 
-**Built with ❤️ for a more sustainable future** 🌍
+**Happy Coding! 🚀**
+
+For detailed step-by-step instructions, see [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)

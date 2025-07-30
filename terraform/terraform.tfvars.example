@@ -1,0 +1,44 @@
+# AWS region - using eu-west-1 to match your existing VPC
+aws_region = "eu-west-1"
+
+# Use existing infrastructure (recommended)
+use_existing_vpc = true
+existing_vpc_id = "vpc-092ac0f7eaf3d4221"
+existing_subnet_ids = [
+  "subnet-087046bd3d8c5919c",  # test-subnet-public1-eu-west-1a
+  "subnet-05acb25890bb95e62"   # test-subnet-public2-eu-west-1b
+]
+
+# Database configuration
+db_name     = "food_surplus_db"
+db_username = "postgres"
+
+# GitHub repository URL (replace with your actual repository)
+github_repo_url = "https://github.com/yourusername/food-surplus-platform"
+
+# NextAuth secret (generate a secure random string with: openssl rand -base64 32)
+nextauth_secret = "your-secure-random-string-here"
+
+# Custom domain (optional, leave empty if not using custom domain)
+custom_domain = ""
+
+# Scaling configuration - choose based on your expected users
+# For 1,000 users:
+enable_optimized_db = false
+db_instance_class = "db.t3.micro"
+db_allocated_storage = 20
+db_max_allocated_storage = 100
+max_db_connections = 87
+
+# For 10,000 users, change above to:
+# enable_optimized_db = true
+# db_instance_class = "db.t3.medium"
+# db_allocated_storage = 100
+# db_max_allocated_storage = 500
+# max_db_connections = 200
+
+# Monitoring and backup
+enable_monitoring = true
+backup_retention_period = 7
+skip_final_snapshot = true
+deletion_protection = false
