@@ -367,3 +367,10 @@ This project is licensed under the MIT License.
 **Happy Coding! 🚀**
 
 For detailed step-by-step instructions, see [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)
+
+
+signal sign on 
+no enterprise version 
+functionality develop and sale the app 
+user base 5k -10k 
+
