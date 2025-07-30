@@ -11,10 +11,8 @@ const nextConfig = {
   },
   serverExternalPackages: ['@prisma/client'],
   output: 'standalone',
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/**/*': ['./node_modules/**/*.wasm', './node_modules/**/*.node'],
-    },
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./node_modules/**/*.wasm', './node_modules/**/*.node'],
   },
 }
 

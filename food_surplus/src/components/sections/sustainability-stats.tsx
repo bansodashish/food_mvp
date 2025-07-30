@@ -79,7 +79,7 @@ export function SustainabilityStats() {
             Our Sustainability Impact
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Together, we're making a real difference in reducing food waste and building a more sustainable future.
+            Together, we&apos;re making a real difference in reducing food waste and building a more sustainable future.
           </p>
         </div>
 
